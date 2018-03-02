@@ -1,0 +1,441 @@
+import java.util.Random;
+
+/**
+ * The class <b>GameModel</b> holds the model, the state of the systems. 
+ * It stores the following information:
+ * - the state of all the ``dots'' on the board (mined or not, clicked
+ * or not, number of neighbooring mines...)
+ * - the size of the board
+ * - the number of steps since the last reset
+ *
+ * The model provides all of this informations to the other classes trough 
+ *  appropriate Getters. 
+ * The controller can also update the model through Setters.
+ * Finally, the model is also in charge of initializing the game
+ *
+ * @author Guy-Vincent Jourdan, University of Ottawa
+ */
+public class GameModel {
+  
+  
+  // ADD YOUR INSTANCE VARIABLES HERE
+  private int width, height, numberOfMines;
+  private DotInfo[][] info;
+  private int numberSteps;
+  private int minesAround;
+  private int dotsUncovered;
+  
+  /**
+   * Constructor to initialize the model to a given size of board.
+   * 
+   * @param width
+   *            the width of the board
+   * 
+   * @param height
+   *            the height of the board
+   * 
+   * @param numberOfMines
+   *            the number of mines to hide in the board
+   */
+  public GameModel(int width, int height, int numberOfMines) {
+    
+    // ADD YOU CODE HERE
+    this.width = width;
+    this.height = height;
+    this.numberOfMines = numberOfMines;
+    info = new DotInfo[height][width];
+    for(int i = 0; i < height; i++) {
+      for(int j = 0; j < width; j++) {
+        info[i][j] = new DotInfo(i, j);
+      }
+    }
+    numberSteps = 0;
+  }
+  
+  
+  
+  /**
+   * Resets the model to (re)start a game. The previous game (if there is one)
+   * is cleared up . 
+   */
+  public void reset(){
+    Random g = new Random();
+    
+    // ADD YOU CODE HERE
+    for(int i = 0; i < height; i++) {
+      for(int j = 0; j < width; j++) {
+        info[i][j] = new DotInfo(i, j);
+      }
+    }
+    for(int i = 0; i < numberOfMines; i++) {
+      int w = g.nextInt(width);
+      int h = g.nextInt(height);
+      info[h][w].setMined();
+    }
+    numberSteps = 0;
+    for(int i = 1; i < info[0].length-1; i++) {
+      int mines = 0;
+      if(!isMined(0, i)) {
+        if(isMined(0, i-1)) {
+          mines++;
+        }
+        if(isMined(0, i+1)) {
+          mines++;
+        }
+        if(isMined(1, i-1)) {
+          mines++;
+        }
+        if(isMined(1, i)) {
+          mines++;
+        }
+        if(isMined(1, i+1)) {
+          mines++;
+        }
+        get(0, i).setNeighbooringMines(mines);
+      }
+    }
+    for(int i = 1; i < info.length - 1; i++) {
+      int mines = 0;
+      if(!isMined(i, 0)) {
+        if(isMined(i-1, 0))
+          mines++;
+        if(isMined(i-1, 1))
+          mines++;
+        if(isMined(i, 1))
+          mines++;
+        if(isMined(i+1, 0))
+          mines++;
+        if(isMined(i+1, 1))
+          mines++;
+        get(i, 0).setNeighbooringMines(mines);
+      }
+    }
+    for(int i = 1; i < info[0].length-1; i++) {
+      int mines = 0;
+      if(!isMined(info.length-1, i)) {
+        if(isMined(info.length-1, i-1))
+          mines++;
+        if(isMined(info.length-2, i-1))
+          mines++;
+        if(isMined(info.length-2, i))
+          mines++;
+        if(isMined(info.length-1, i+1))
+          mines++;
+        if(isMined(info.length-2, i+1))
+          mines++;
+        get(info.length-1, i).setNeighbooringMines(mines);
+      }
+    }
+    for(int i = 1; i < info.length-1; i++) {
+      int mines = 0;
+      if(!isMined(i, info[i].length-1)) {
+        if(isMined(i-1, info[i].length-1))
+          mines++;
+        if(isMined(i-1, info[i].length-2))
+          mines++;
+        if(isMined(i, info[i].length-2))
+          mines++;
+        if(isMined(i+1, info[i].length-1))
+          mines++;
+        if(isMined(i+1, info[i].length-2))
+          mines++;
+        get(i, info[i].length-1).setNeighbooringMines(mines);
+      }
+    }
+    if(!isMined(0, 0)) {
+      int mines = 0;
+      if(isMined(0, 1))
+        mines++;
+      if(isMined(1, 0))
+        mines++;
+      if(isMined(1, 1))
+        mines++;
+      get(0, 0).setNeighbooringMines(mines);
+    }
+    if(!isMined(0, info[0].length-1)) {
+      int mines = 0;
+      if(isMined(0, info[0].length-2))
+        mines++;
+      if(isMined(1, info[1].length-1))
+        mines++;
+      if(isMined(1, info[1].length-2))
+        mines++;
+      get(0, info[0].length-1).setNeighbooringMines(mines);
+    }
+    if(!isMined(info.length-1, 0)) {
+      int mines = 0;
+      if(isMined(info.length-2, 0))
+        mines++;
+      if(isMined(info.length-2, 1))
+        mines++;
+      if(isMined(info.length-1, 1))
+        mines++;
+      get(info.length-1, 0).setNeighbooringMines(mines);
+    }
+    if(!isMined(info.length-1, info[0].length-1)) {
+      int mines = 0;
+      if(isMined(info.length-2, info[0].length-1))
+        mines++;
+      if(isMined(info.length-2, info[0].length-2))
+        mines++;
+      if(isMined(info.length-1, info[0].length-2))
+        mines++;
+      get(info.length-1, info[0].length-1).setNeighbooringMines(mines);
+    }
+    for(int i = 1; i < info.length-1; i++) {
+      for(int j = 1; j < info[i].length-1; j++) {
+        int mines = 0;
+        if(!(isMined(i, j))) {
+          if(isMined(i-1, j-1))
+            mines++;
+          if(isMined(i-1, j))
+            mines++;
+          if(isMined(i-1, j+1))
+            mines++;
+          if(isMined(i, j-1))
+            mines++;
+          if(isMined(i, j+1))
+            mines++;
+          if(isMined(i+1, j-1))
+            mines++;
+          if(isMined(i+1, j))
+            mines++;
+          if(isMined(i+1, j+1))
+            mines++;
+          get(i, j).setNeighbooringMines(mines);
+        }          
+      }
+    }
+  }
+  
+  
+  /**
+   * Getter method for the height of the game
+   * 
+   * @return the value of the attribute heightOfGame
+   */   
+  public int getHeight(){
+    
+    // ADD YOU CODE HERE
+    return height;
+    
+  }
+  
+  /**
+   * Getter method for the width of the game
+   * 
+   * @return the value of the attribute widthOfGame
+   */   
+  public int getWidth(){
+    
+    // ADD YOU CODE HERE
+    return width;
+    
+  }
+  
+  
+  
+  /**
+   * returns true if the dot at location (i,j) is mined, false otherwise
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   * @return the status of the dot at location (i,j)
+   */   
+  public boolean isMined(int i, int j){
+    
+    // ADD YOU CODE HERE
+    return info[i][j].isMined();
+    
+  }
+  
+  /**
+   * returns true if the dot  at location (i,j) has 
+   * been clicked, false otherwise
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   * @return the status of the dot at location (i,j)
+   */   
+  public boolean hasBeenClicked(int i, int j){
+    
+    // ADD YOU CODE HERE
+    return info[i][j].hasBeenClicked();
+    
+  }
+  
+  /**
+   * returns true if the dot  at location (i,j) has zero mined 
+   * neighboor, false otherwise
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   * @return the status of the dot at location (i,j)
+   */   
+  public boolean isBlank(int i, int j){
+    
+    // ADD YOU CODE HERE
+    if(info[i][j].getNeighbooringMines() == 0) {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * returns true if the dot is covered, false otherwise
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   * @return the status of the dot at location (i,j)
+   */   
+  public boolean isCovered(int i, int j){
+    
+    // ADD YOU CODE HERE
+    return info[i][j].isCovered();
+    
+  }
+  
+  /**
+   * returns the number of neighbooring mines os the dot  
+   * at location (i,j)
+   *
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   * @return the number of neighbooring mines at location (i,j)
+   */   
+  public int getNeighbooringMines(int i, int j){
+    
+    // ADD YOU CODE HERE
+    return info[i][j].getNeighbooringMines();
+    
+  }
+  
+  
+  /**
+   * Sets the status of the dot at location (i,j) to uncovered
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   */   
+  public void uncover(int i, int j){
+    
+    // ADD YOU CODE HERE
+    info[i][j].uncover();
+    dotsUncovered++;
+    
+  }
+  
+  /**
+   * Sets the status of the dot at location (i,j) to clicked
+   * 
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   */   
+  public void click(int i, int j){
+    
+    // ADD YOU CODE HERE
+    info[i][j].click();
+    
+  }
+  /**
+   * Uncover all remaining covered dot
+   */   
+  public void uncoverAll(){
+    
+    // ADD YOU CODE HERE
+    for(int i = 0; i < height; i++) {
+      for(int j = 0; j < width; j++) {
+        info[i][j].uncover();
+      }
+    }
+    
+  }
+  
+  
+  
+  /**
+   * Getter method for the current number of steps
+   * 
+   * @return the current number of steps
+   */   
+  public int getNumberOfSteps(){
+    
+    // ADD YOU CODE HERE
+    return numberSteps;
+    
+  }
+  
+  
+  
+  /**
+   * Getter method for the model's dotInfo reference
+   * at location (i,j)
+   *
+   * @param i
+   *            the x coordinate of the dot
+   * @param j
+   *            the y coordinate of the dot
+   *
+   * @return model[i][j]
+   */   
+  public DotInfo get(int i, int j) {
+    
+    // ADD YOU CODE HERE
+    return info[i][j];
+    
+  }
+  
+  
+  /**
+   * The metod <b>step</b> updates the number of steps. It must be called 
+   * once the model has been updated after the payer selected a new square.
+   */
+  public void step(){
+    
+    // ADD YOU CODE HERE
+    numberSteps++;
+    
+  }
+  
+  /**
+   * The metod <b>isFinished</b> returns true iff the game is finished, that
+   * is, all the nonmined dots are uncovered.
+   *
+   * @return true if the game is finished, false otherwise
+   */
+  public boolean isFinished(){
+    
+    // ADD YOU CODE HERE
+    if(dotsUncovered == ((width * height) - numberOfMines)) {
+      return true;
+    }
+    return false;
+    
+  }
+  
+  
+  /**
+   * Builds a String representation of the model
+   *
+   * @return String representation of the model
+   */
+  public String toString(){
+    
+    // ADD YOU CODE HERE
+    return "Width: " + width + "\nHeight: " + height + "\nNumber of Mines: " + numberOfMines + "\nDots uncovered: " + dotsUncovered + "\nNumber of Steps: " + numberSteps;
+    
+  }
+}
